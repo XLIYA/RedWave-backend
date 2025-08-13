@@ -1,0 +1,176 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  username     String   @unique @db.VarChar(50)
+  password     String   // اصلاح شد: از passwordHash به password
+  role         Role     @default(user)
+  bio          String?
+  profileImage String?
+  socialLinks  Json?
+  isOnline     Boolean  @default(false)
+  lastSeen     DateTime?
+
+  playlists    Playlist[]
+  songs        Song[] @relation("UploadedSongs")
+  comments     Comment[]
+  likes        Like[]
+  moodTags     MoodTag[] // اضافه شد
+  followers    Follow[] @relation("Followers") // اصلاح شد
+  following    Follow[] @relation("Following") // اصلاح شد
+  activities   Activity[]
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+enum Role {
+  admin
+  user
+}
+
+model Song {
+  id           String   @id @default(uuid())
+  title        String
+  artist       String
+  genre        String   @db.VarChar(30)
+  releaseDate  DateTime
+  coverImage   String
+  fileUrl      String
+  uploadedBy   User     @relation("UploadedSongs", fields: [uploadedById], references: [id])
+  uploadedById String
+
+  playlists    PlaylistSong[] // اصلاح شد: از PlaylistSongs به PlaylistSong
+  analytics    Analytics?
+  lyrics       Lyrics?
+  comments     Comment[]
+  moodTags     MoodTag[]
+  likes        Like[]
+  searchKey    String  @default("") @db.VarChar(256)
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([title])
+  @@index([artist])
+  @@index([genre])
+  @@index([searchKey])
+  @@unique([title, artist]) // اصلاح شد: حذف releaseDate
+}
+
+model Playlist {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  owner       User     @relation(fields: [ownerId], references: [id])
+  ownerId     String
+
+  songs       PlaylistSong[] // اصلاح شد
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([ownerId])
+}
+
+model PlaylistSong { // اصلاح شد: نام مدل
+  playlistId String
+  songId     String
+  createdAt  DateTime @default(now())
+
+  playlist Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  song     Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@id([playlistId, songId]) // اصلاح شد: به جای @@unique از @@id استفاده شد
+}
+
+model Analytics {
+  id              String   @id @default(uuid())
+  song            Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
+  songId          String   @unique
+  playCount       Int      @default(0) // اضافه شد
+  uniqueListeners Int      @default(0) // اضافه شد
+  lastPlayed      DateTime @default(now()) // اصلاح شد
+}
+
+model Lyrics {
+  songId     String  @unique
+  lyricsText String
+  song       Song    @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@id([songId]) // اضافه شد
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  userId    String
+  songId    String
+  text      String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  song Song @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@index([songId])
+  @@index([userId])
+}
+
+model MoodTag {
+  userId    String
+  songId    String
+  tag       String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  song Song @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@id([userId, songId, tag]) // اصلاح شد: به جای @@unique از @@id استفاده شد
+}
+
+model Like {
+  userId   String
+  songId   String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  song Song @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@id([userId, songId]) // اصلاح شد: به جای @@unique از @@id استفاده شد
+}
+
+model Follow {
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+
+  follower  User @relation("Followers", fields: [followerId], references: [id], onDelete: Cascade) // اصلاح شد
+  following User @relation("Following", fields: [followingId], references: [id], onDelete: Cascade) // اصلاح شد
+
+  @@id([followerId, followingId]) // اصلاح شد: به جای @@unique از @@id استفاده شد
+}
+
+model Activity {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  type      ActivityType
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([type])
+}
+
+enum ActivityType {
+  upload
+  like
+  follow
+  create_playlist
+}
