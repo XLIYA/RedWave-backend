@@ -1,6 +1,6 @@
 // src/routes/songRoutes.js
 import express from 'express';
-import { protect, optionalAuth } from '../middleware/authMiddleware.js';
+import { protect, optionalAuth, requireAdmin } from '../middleware/authMiddleware.js';
 import {
   createSong,
   getSong,
@@ -249,7 +249,7 @@ router.get('/', listSongs);
  *                   message: "تاریخ انتشار نامعتبر است"
  *       401: { $ref: '#/components/responses/Unauthorized' }
  */
-router.post('/', protect, createSong);
+router.post('/', protect, requireAdmin, createSong);
 
 /**
  * @openapi

@@ -1,7 +1,7 @@
 // src/routes/uploadRoutes.js
 import express from 'express';
-import { protect } from '../middleware/authMiddleware.js';
-import { uploadCover, uploadAudio, coverUpload, audioUpload } from '../controllers/uploadController.js';
+import { protect, requireAdmin } from '../middleware/authMiddleware.js';
+import { uploadCover, uploadAudio, uploadErrorHandler } from '../controllers/uploadController.js';
 
 const router = express.Router();
 
@@ -11,17 +11,26 @@ const router = express.Router();
  *   post:
  *     summary: Upload cover image
  *     tags: [Upload]
- *     security: [ { bearerAuth: [] } ]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
  *         multipart/form-data:
  *           schema:
- *             $ref: '#/components/schemas/UploadCoverRequest'
+ *             type: object
+ *             properties:
+ *               cover:
+ *                 type: string
+ *                 format: binary
+ *                 description: Image file (.jpg, .jpeg, .png, .webp), max 10MB
  *     responses:
- *       200: { description: OK }
+ *       201:
+ *         description: Created
+ *       400:
+ *         description: Bad Request
  */
-router.post('/cover', protect, coverUpload.single('cover'), uploadCover);
+router.post('/cover', protect, requireAdmin, ...uploadCover, uploadErrorHandler);
 
 /**
  * @openapi
@@ -29,16 +38,25 @@ router.post('/cover', protect, coverUpload.single('cover'), uploadCover);
  *   post:
  *     summary: Upload audio file
  *     tags: [Upload]
- *     security: [ { bearerAuth: [] } ]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
  *         multipart/form-data:
  *           schema:
- *             $ref: '#/components/schemas/UploadAudioRequest'
+ *             type: object
+ *             properties:
+ *               audio:
+ *                 type: string
+ *                 format: binary
+ *                 description: Audio file (.mp3, .wav, .ogg, .flac, .aac, .m4a, .webm), max 100MB
  *     responses:
- *       200: { description: OK }
+ *       201:
+ *         description: Created
+ *       400:
+ *         description: Bad Request
  */
-router.post('/audio', protect, audioUpload.single('audio'), uploadAudio);
+router.post('/audio', protect, requireAdmin, ...uploadAudio, uploadErrorHandler);
 
 export default router;

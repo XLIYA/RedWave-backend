@@ -1,4 +1,3 @@
-// prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,27 +8,30 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(uuid())
-  username     String   @unique @db.VarChar(50)
-  password     String   // اصلاح شد: از passwordHash به password
-  role         Role     @default(user)
+  id           String    @id @default(uuid())
+  username     String    @unique @db.VarChar(50)
+  password     String
+  role         Role      @default(user)
   bio          String?
   profileImage String?
   socialLinks  Json?
-  isOnline     Boolean  @default(false)
+  isOnline     Boolean   @default(false)
   lastSeen     DateTime?
 
-  playlists    Playlist[]
-  songs        Song[] @relation("UploadedSongs")
-  comments     Comment[]
-  likes        Like[]
-  moodTags     MoodTag[] // اضافه شد
-  followers    Follow[] @relation("Followers") // اصلاح شد
-  following    Follow[] @relation("Following") // اصلاح شد
-  activities   Activity[]
+  playlists  Playlist[]
+  songs      Song[]     @relation("UploadedSongs")
+  comments   Comment[]
+  likes      Like[]
+  moodTags   MoodTag[]
+  followers  Follow[]   @relation("Followers")
+  following  Follow[]   @relation("Following")
+  activities Activity[]
 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  // 🆕 فیلد معکوس برای رابطهٔ UserSongPlay
+  songPlays UserSongPlay[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum Role {
@@ -48,40 +50,43 @@ model Song {
   uploadedBy   User     @relation("UploadedSongs", fields: [uploadedById], references: [id])
   uploadedById String
 
-  playlists    PlaylistSong[] // اصلاح شد: از PlaylistSongs به PlaylistSong
-  analytics    Analytics?
-  lyrics       Lyrics?
-  comments     Comment[]
-  moodTags     MoodTag[]
-  likes        Like[]
-  searchKey    String  @default("") @db.VarChar(256)
+  playlists PlaylistSong[]
+  analytics Analytics?
+  lyrics    Lyrics?
+  comments  Comment[]
+  moodTags  MoodTag[]
+  likes     Like[]
+  searchKey String         @default("") @db.VarChar(256)
 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  // 🆕 فیلد معکوس برای رابطهٔ UserSongPlay
+  userPlays UserSongPlay[]
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([title, artist]) // اگر ریمیکس/نسخه‌های مختلف داری، می‌تونی بعداً بازنگری کنی
   @@index([title])
   @@index([artist])
   @@index([genre])
   @@index([searchKey])
-  @@unique([title, artist]) // اصلاح شد: حذف releaseDate
 }
 
 model Playlist {
-  id          String   @id @default(uuid())
+  id          String  @id @default(uuid())
   name        String
   description String?
-  owner       User     @relation(fields: [ownerId], references: [id])
+  owner       User    @relation(fields: [ownerId], references: [id])
   ownerId     String
 
-  songs       PlaylistSong[] // اصلاح شد
+  songs PlaylistSong[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([ownerId])
 }
 
-model PlaylistSong { // اصلاح شد: نام مدل
+model PlaylistSong {
   playlistId String
   songId     String
   createdAt  DateTime @default(now())
@@ -89,24 +94,24 @@ model PlaylistSong { // اصلاح شد: نام مدل
   playlist Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
   song     Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
 
-  @@id([playlistId, songId]) // اصلاح شد: به جای @@unique از @@id استفاده شد
+  @@id([playlistId, songId])
 }
 
 model Analytics {
   id              String   @id @default(uuid())
   song            Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
   songId          String   @unique
-  playCount       Int      @default(0) // اضافه شد
-  uniqueListeners Int      @default(0) // اضافه شد
-  lastPlayed      DateTime @default(now()) // اصلاح شد
+  playCount       Int      @default(0)
+  uniqueListeners Int      @default(0)
+  lastPlayed      DateTime @default(now())
 }
 
 model Lyrics {
-  songId     String  @unique
+  songId     String
   lyricsText String
-  song       Song    @relation(fields: [songId], references: [id], onDelete: Cascade)
+  song       Song   @relation(fields: [songId], references: [id], onDelete: Cascade)
 
-  @@id([songId]) // اضافه شد
+  @@id([songId])
 }
 
 model Comment {
@@ -132,18 +137,18 @@ model MoodTag {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   song Song @relation(fields: [songId], references: [id], onDelete: Cascade)
 
-  @@id([userId, songId, tag]) // اصلاح شد: به جای @@unique از @@id استفاده شد
+  @@id([userId, songId, tag])
 }
 
 model Like {
-  userId   String
-  songId   String
+  userId    String
+  songId    String
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   song Song @relation(fields: [songId], references: [id], onDelete: Cascade)
 
-  @@id([userId, songId]) // اصلاح شد: به جای @@unique از @@id استفاده شد
+  @@id([userId, songId])
 }
 
 model Follow {
@@ -151,18 +156,18 @@ model Follow {
   followingId String
   createdAt   DateTime @default(now())
 
-  follower  User @relation("Followers", fields: [followerId], references: [id], onDelete: Cascade) // اصلاح شد
-  following User @relation("Following", fields: [followingId], references: [id], onDelete: Cascade) // اصلاح شد
+  follower  User @relation("Followers", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
 
-  @@id([followerId, followingId]) // اصلاح شد: به جای @@unique از @@id استفاده شد
+  @@id([followerId, followingId])
 }
 
 model Activity {
-  id        String   @id @default(uuid())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String       @id @default(uuid())
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
   type      ActivityType
-  createdAt DateTime @default(now())
+  createdAt DateTime     @default(now())
 
   @@index([userId])
   @@index([type])
@@ -173,4 +178,19 @@ enum ActivityType {
   like
   follow
   create_playlist
+}
+
+// 🆕 مدل اصولی برای ثبت پخشِ یکتای هر کاربر روی هر آهنگ
+model UserSongPlay {
+  userId        String
+  songId        String
+  firstPlayedAt DateTime @default(now())
+  lastPlayedAt  DateTime @default(now())
+  playCount     Int      @default(1)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  song Song @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@id([userId, songId])
+  @@index([songId])
 }

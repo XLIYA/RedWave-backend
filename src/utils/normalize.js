@@ -1,2 +1,8 @@
 // src/utils/normalize.js
-export const normalize = (s = '') => s.toString().toLowerCase().replace(/[^a-z0-9]+/g, '');
+// نگه‌داشتن حروف و ارقام همهٔ زبان‌ها + حذف فاصله/نشانه‌ها
+export const normalize = (s = '') =>
+  s
+    .toString()
+    .normalize('NFKD')
+    .toLowerCase()
+    .replace(/[^\p{Letter}\p{Number}]+/gu, '');
