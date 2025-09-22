@@ -1,19 +1,19 @@
 {
   "name": "redwave-api",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
   "main": "server.js",
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
-    "db:reset": "npx prisma db push --force-reset",
-    "db:migrate": "node scripts/migrate-schema.js",
-    "db:setup": "npm run db:reset && npm run db:migrate",
-    "prisma:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:reset": "prisma migrate reset --force",
+    "db:seed": "prisma db seed",
     "prisma:generate": "prisma generate",
-    "prisma:studio": "prisma studio",
-    "seed:admin": "node scripts/createAdmin.js"
+    "prisma:studio": "prisma studio"
   },
   "dependencies": {
     "@prisma/client": "^6.13.0",

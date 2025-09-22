@@ -19,16 +19,13 @@ export const protect = async (req, res, next) => {
     if (!user) return res.status(401).json({ message: 'کاربر یافت نشد' });
     req.user = user;
     next();
-  } catch (error) {
-    console.error('Auth middleware error:', error);
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ message: 'توکن منقضی شده است' });
-    }
-    return res.status(401).json({ message: 'احراز هویت ناموفق' });
+  } catch (e) {
+    return res.status(401).json({ message: 'توکن نامعتبر است' });
   }
 };
 
-export const optionalAuth = async (req, res, next) => {
+// احراز هویت اختیاری برای صفحات عمومی (مثلاً play)
+export const optionalAuth = async (req, _res, next) => {
   try {
     const hdr = req.headers.authorization || '';
     if (!hdr.startsWith('Bearer ')) return next();
@@ -41,9 +38,10 @@ export const optionalAuth = async (req, res, next) => {
       select: { id: true, username: true, role: true }
     });
     if (user) req.user = user;
+  } catch (_) {
+    // نادیده بگیر
+  } finally {
     next();
-  } catch {
-    next(); // ادامه بدون set کردن کاربر
   }
 };
 

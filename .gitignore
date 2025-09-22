@@ -1,11 +1,33 @@
-﻿node_modules/
-.env
-.env.*
+﻿# Node & build artifacts
+node_modules/
 dist/
 build/
 coverage/
 logs/
+*.log
 npm-debug.log*
 yarn-error.log*
+.pnpm-debug.log*
+
+# OS / editor
 .DS_Store
-*.log
+.vscode/
+.idea/
+
+# Env & secrets
+.env
+.env.*
+.env.local
+.env.production
+.env.development
+*.pem
+*.key
+*.crt
+
+# Runtime/uploads
+uploads/
+
+# Prisma (if any local files; keep if you use SQLite)
+*.sqlite
+*.sqlite-journal
+prisma/*.db

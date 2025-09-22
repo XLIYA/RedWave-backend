@@ -395,20 +395,14 @@ const server = app.listen(PORT, () => {
 
 // Graceful shutdown
 const gracefulShutdown = (signal) => {
-  console.log(`\n${signal} received. Shutting down gracefully...`);
-  server.close((err) => {
-    if (err) {
-      console.error('Error during server shutdown:', err);
-      process.exit(1);
-    }
-    console.log('Server closed successfully');
+  console.log(`${signal} received, closing...`);
+  server.close(async () => {
+    try { await prisma.$disconnect(); } catch {}
     process.exit(0);
   });
-  setTimeout(() => {
-    console.error('Force shutdown');
-    process.exit(1);
-  }, 10000);
+  setTimeout(() => process.exit(1), 10000);
 };
+
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 process.on('uncaughtException', (err) => { console.error('Uncaught Exception:', err); process.exit(1); });
