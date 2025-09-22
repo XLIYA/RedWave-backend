@@ -7,6 +7,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  admin
+  user
+}
+
+enum ActivityType {
+  upload
+  like
+  follow
+  create_playlist
+}
+
 model User {
   id           String    @id @default(uuid())
   username     String    @unique @db.VarChar(50)
@@ -19,24 +31,37 @@ model User {
   lastSeen     DateTime?
 
   playlists  Playlist[]
-  songs      Song[]     @relation("UploadedSongs")
+  songs      Song[]         @relation("UploadedSongs")
+  albums     Album[]        @relation("UploadedAlbums")
   comments   Comment[]
   likes      Like[]
   moodTags   MoodTag[]
-  followers  Follow[]   @relation("Followers")
-  following  Follow[]   @relation("Following")
+  followers  Follow[]       @relation("Followers")
+  following  Follow[]       @relation("Following")
   activities Activity[]
-
-  // 🆕 فیلد معکوس برای رابطهٔ UserSongPlay
-  songPlays UserSongPlay[]
+  songPlays  UserSongPlay[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-enum Role {
-  admin
-  user
+model Album {
+  id           String    @id @default(uuid())
+  title        String
+  artist       String
+  description  String?
+  releaseDate  DateTime?
+  coverImage   String?
+  uploadedById String
+  uploadedBy   User      @relation("UploadedAlbums", fields: [uploadedById], references: [id], onDelete: Cascade)
+  songs        Song[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([uploadedById])
+  @@index([title])
+  @@index([artist])
 }
 
 model Song {
@@ -47,8 +72,13 @@ model Song {
   releaseDate  DateTime
   coverImage   String
   fileUrl      String
-  uploadedBy   User     @relation("UploadedSongs", fields: [uploadedById], references: [id])
   uploadedById String
+  uploadedBy   User     @relation("UploadedSongs", fields: [uploadedById], references: [id])
+
+  albumId     String?
+  album       Album?  @relation(fields: [albumId], references: [id], onDelete: SetNull)
+  trackNumber Int?
+  discNumber  Int?
 
   playlists PlaylistSong[]
   analytics Analytics?
@@ -58,31 +88,32 @@ model Song {
   likes     Like[]
   searchKey String         @default("") @db.VarChar(256)
 
-  // 🆕 فیلد معکوس برای رابطهٔ UserSongPlay
   userPlays UserSongPlay[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([title, artist]) // اگر ریمیکس/نسخه‌های مختلف داری، می‌تونی بعداً بازنگری کنی
+  @@unique([title, artist, albumId]) // کلید مرکب مناسب آلبوم
   @@index([title])
   @@index([artist])
   @@index([genre])
   @@index([searchKey])
+  @@index([albumId, trackNumber])
 }
 
 model Playlist {
   id          String  @id @default(uuid())
   name        String
   description String?
-  owner       User    @relation(fields: [ownerId], references: [id])
   ownerId     String
+  owner       User    @relation(fields: [ownerId], references: [id])
 
   songs PlaylistSong[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([ownerId, name])
   @@index([ownerId])
 }
 
@@ -99,8 +130,8 @@ model PlaylistSong {
 
 model Analytics {
   id              String   @id @default(uuid())
-  song            Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
   songId          String   @unique
+  song            Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
   playCount       Int      @default(0)
   uniqueListeners Int      @default(0)
   lastPlayed      DateTime @default(now())
@@ -164,8 +195,8 @@ model Follow {
 
 model Activity {
   id        String       @id @default(uuid())
-  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   type      ActivityType
   createdAt DateTime     @default(now())
 
@@ -173,14 +204,6 @@ model Activity {
   @@index([type])
 }
 
-enum ActivityType {
-  upload
-  like
-  follow
-  create_playlist
-}
-
-// 🆕 مدل اصولی برای ثبت پخشِ یکتای هر کاربر روی هر آهنگ
 model UserSongPlay {
   userId        String
   songId        String
