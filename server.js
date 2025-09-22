@@ -12,19 +12,19 @@ import { swaggerSpec } from './src/config/swagger.js';
 import prisma from './src/config/db.js'; // ✅ برای قطع اتصال تمیز
 
 // Routes
-import authRoutes from './src/routes/authRoutes.js';
-import userRoutes from './src/routes/userRoutes.js';
-import songRoutes from './src/routes/songRoutes.js';
-import playlistRoutes from './src/routes/playlistRoutes.js';
-import searchRoutes from './src/routes/searchRoutes.js';
-import uploadRoutes from './src/routes/uploadRoutes.js';
-import lyricsRoutes from './src/routes/lyricsRoutes.js';
-import likeRoutes from './src/routes/likeRoutes.js';
-import commentRoutes from './src/routes/commentRoutes.js';
-import tagRoutes from './src/routes/tagRoutes.js';
-import followRoutes from './src/routes/followRoutes.js';
-import feedRoutes from './src/routes/feedRoutes.js';
-import albumRoutes from './src/routes/albumRoutes.js';
+import authRoutes from './src/routes/auth-routes/authRoutes.js';
+import userRoutes from './src/routes/user-routes/userRoutes.js';
+import songRoutes from './src/routes/song-routes/songRoutes.js';
+import playlistRoutes from './src/routes/playlist-routes/playlistRoutes.js';
+import searchRoutes from './src/routes/search-routes/searchRoutes.js';
+import uploadRoutes from './src/routes/upload-routes/uploadRoutes.js';
+import lyricsRoutes from './src/routes/lyrics-routes/lyricsRoutes.js';
+import likeRoutes from './src/routes//like-routes/likeRoutes.js';
+import commentRoutes from './src/routes/comments-routes/commentRoutes.js';
+import tagRoutes from './src/routes/tag-routes/tagRoutes.js';
+import followRoutes from './src/routes/follow-routes/followRoutes.js';
+import feedRoutes from './src/routes/feed-routes/feedRoutes.js';
+import albumRoutes from './src/routes/album-routes/albumRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
