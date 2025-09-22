@@ -1,0 +1,15 @@
+# Normalize everything to LF in repo
+* text=auto eol=lf
+
+# (اختیاری) اگر واقعاً لازم داری اسکریپت‌های batch ویندوز با CRLF بمانند:
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# تصاویر/باینری‌ها دست‌نخورده بمانند
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.mp3 binary
+*.mp4 binary
+*.zip binary
