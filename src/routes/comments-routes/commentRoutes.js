@@ -1,7 +1,7 @@
 // src/routes/commentRoutes.js
 import express from 'express';
 import { protect } from '../../middleware/authMiddleware.js';
-import { listComments, addComment, updateComment, deleteComment } from '../../controllers/comments-controllers/commentsController.js';
+import { listComments, addComment, updateComment, deleteComment } from '../../controllers/comments-controllers/index.js';
 
 const router = express.Router();
 

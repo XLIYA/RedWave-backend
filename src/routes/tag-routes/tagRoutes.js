@@ -1,7 +1,7 @@
 ﻿// src/routes/tagRoutes.js
 import express from 'express';
 import { protect } from '../../middleware/authMiddleware.js';
-import { getSongTags, addSongTag, removeSongTag, listTopTags } from '../../controllers/tag-controllers/tagController.js';
+import { getSongTags, addSongTag, removeSongTag, listTopTags } from '../../controllers/tag-controllers/index.js';
 
 const router = express.Router();
 

@@ -11,7 +11,7 @@ import {
   getUserUploads,
   getUserPlaylists,
   setOnlineStatus
-} from '../../controllers/user-controllers/userController.js';
+} from '../../controllers/user-controllers/index.js';
 
 const router = express.Router();
 

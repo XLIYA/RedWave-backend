@@ -9,7 +9,7 @@ import {
   deletePlaylist,
   addSongToPlaylist,
   removeSongFromPlaylist,
-} from '../../controllers/playlist-controllers/playlistController.js';
+} from '../../controllers/playlist-controllers/index.js';
 
 const router = express.Router();
 

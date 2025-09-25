@@ -1,6 +1,6 @@
 // src/routes/searchRoutes.js
 import express from 'express';
-import { search, searchSuggestions } from '../../controllers/search-controllers/searchController.js';
+import { search, searchSuggestions } from '../../controllers/search-controllers/index.js';
 
 const router = express.Router();
 

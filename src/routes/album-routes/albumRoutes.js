@@ -1,7 +1,7 @@
 import express from 'express';
 import { protect, optionalAuth /*, requireAdmin */ } from '../../middleware/authMiddleware.js';
 import { uploadAlbumMulter } from '../../middleware/upload.js';
-import { createAlbumWithTracks, getAlbum, listAlbums } from '../../controllers/album-controllers/albumController.js';
+import { createAlbumWithTracks, getAlbum, listAlbums } from '../../controllers/album-controllers/index.js';
 
 const router = express.Router();
 

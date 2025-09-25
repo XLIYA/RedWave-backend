@@ -1,7 +1,7 @@
 // src/routes/uploadRoutes.js
 import express from 'express';
 import { protect, requireAdmin } from '../../middleware/authMiddleware.js';
-import { uploadCover, uploadAudio, uploadErrorHandler } from '../../controllers/upload-controllers/uploadController.js';
+import { uploadCover, uploadAudio, uploadErrorHandler } from '../../controllers/upload-controllers/index.js';
 
 const router = express.Router();
 

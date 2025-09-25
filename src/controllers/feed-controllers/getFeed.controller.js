@@ -1,4 +1,3 @@
-// src/controllers/feedController.js
 import prisma from '../../config/db.js';
 
 export const getFeed = async (req, res) => {
@@ -11,12 +10,14 @@ export const getFeed = async (req, res) => {
       where: { followerId: req.user.id },
       select: { followingId: true },
     });
+
     const followingIds = following.map(f => f.followingId);
     if (!followingIds.length) {
       return res.json({ items: [], page, pageSize: take, total: 0, pages: 0 });
     }
 
     const where = { uploadedById: { in: followingIds } };
+
     const [items, total] = await prisma.$transaction([
       prisma.song.findMany({
         where,

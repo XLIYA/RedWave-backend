@@ -10,7 +10,7 @@ import {
   playSong,
   listTopSongs,
   listTrendingSongs,
-} from '../../controllers/song-controllers/songController.js';
+} from '../../controllers/song-controllers/index.js';
 
 const router = express.Router();
 

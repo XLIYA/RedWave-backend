@@ -1,0 +1,9 @@
+export { getMe } from './getMe.controller.js';
+export { getUserById } from './getUserById.controller.js';
+export { updateMe } from './updateMe.controller.js';
+export { changePassword } from './changePassword.controller.js';
+export { getMyUploads } from './getMyUploads.controller.js';
+export { getMyLikes } from './getMyLikes.controller.js';
+export { getUserUploads } from './getUserUploads.controller.js';
+export { getUserPlaylists } from './getUserPlaylists.controller.js';
+export { setOnlineStatus } from './setOnlineStatus.controller.js';

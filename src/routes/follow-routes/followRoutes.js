@@ -1,7 +1,7 @@
 // src/routes/followRoutes.js
 import express from 'express';
 import { protect } from '../../middleware/authMiddleware.js';
-import { followUser, unfollowUser, listFollowers, listFollowing } from '../../controllers/follow-controllers/followController.js';
+import { followUser, unfollowUser, listFollowers, listFollowing } from '../../controllers/follow-controllers/index.js';
 
 const router = express.Router();
 

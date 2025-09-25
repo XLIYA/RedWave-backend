@@ -1,7 +1,7 @@
 // src/routes/lyricsRoutes.js
 import express from 'express';
 import { protect } from '../../middleware/authMiddleware.js';
-import { getLyrics, upsertLyrics, deleteLyrics } from '../../controllers/lyrics-controllers/lyricsController.js';
+import { getLyrics, upsertLyrics, deleteLyrics } from '../../controllers/lyrics-controllers/index.js';
 
 const router = express.Router();
 

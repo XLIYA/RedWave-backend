@@ -1,7 +1,7 @@
 // src/routes/likeRoutes.js
 import express from 'express';
 import { protect } from '../../middleware/authMiddleware.js';
-import { getLikes, likeSong, unlikeSong } from '../../controllers/like-controllers/likeController.js';
+import { getLikes, likeSong, unlikeSong } from '../../controllers/like-controllers/index.js';
 
 const router = express.Router();
 

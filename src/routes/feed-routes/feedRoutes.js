@@ -1,7 +1,7 @@
 // src/routes/feedRoutes.js
 import express from 'express';
 import { protect } from '../../middleware/authMiddleware.js';
-import { getFeed } from '../../controllers/feed-controllers/feedController.js';
+import { getFeed } from '../../controllers/feed-controllers/index.js';
 
 const router = express.Router();
 

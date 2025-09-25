@@ -1,4 +1,3 @@
-// src/controllers/albumController.js
 import prisma from '../../config/db.js';
 import path from 'path';
 
@@ -26,7 +25,6 @@ export const createAlbumWithTracks = async (req, res, next) => {
       return res.status(400).json({ message: 'حداقل یک فایل صوتی لازم است (audios[])' });
     }
 
-    // tracks: JSON string (optional)
     let tracksMeta = [];
     if (req.body.tracks) {
       try {
@@ -38,7 +36,6 @@ export const createAlbumWithTracks = async (req, res, next) => {
       }
     }
 
-    // ایجاد آلبوم
     const album = await prisma.album.create({
       data: {
         title: title.trim(),
@@ -51,7 +48,6 @@ export const createAlbumWithTracks = async (req, res, next) => {
       select: { id: true, title: true, artist: true, coverImage: true, releaseDate: true }
     });
 
-    // تراکنش: upsert تک‌به‌تک بر اساس یونیک مرکب (title, artist, albumId)
     await prisma.$transaction(async (tx) => {
       for (let idx = 0; idx < audioFiles.length; idx++) {
         const file = audioFiles[idx];
@@ -62,7 +58,6 @@ export const createAlbumWithTracks = async (req, res, next) => {
         const mTrackNo = meta.trackNumber ? parseInt(meta.trackNumber, 10) : (idx + 1);
         const mDiscNo = meta.discNumber ? parseInt(meta.discNumber, 10) : null;
 
-        // اسم کلید مرکب مطابق Prisma: title_artist_albumId
         await tx.song.upsert({
           where: {
             title_artist_albumId: { title: mTitle, artist: artist.trim(), albumId: album.id }
@@ -92,7 +87,6 @@ export const createAlbumWithTracks = async (req, res, next) => {
         });
       }
 
-      // Analytics برای ترک‌های آلبوم
       const rows = await tx.song.findMany({
         where: { albumId: album.id },
         select: { id: true }
@@ -123,69 +117,6 @@ export const createAlbumWithTracks = async (req, res, next) => {
     return res.status(201).json({ album: full, count: full.songs.length });
   } catch (err) {
     console.error('createAlbumWithTracks error:', err);
-    return next(err); // سپردن پاسخ به error handler (جلوگیری از دوبار send)
-  }
-};
-
-export const getAlbum = async (req, res, next) => {
-  try {
-    const id = String(req.params.id || '').trim();
-    const album = await prisma.album.findUnique({
-      where: { id },
-      include: {
-        uploadedBy: { select: { id: true, username: true } },
-        songs: {
-          orderBy: [{ discNumber: 'asc' }, { trackNumber: 'asc' }, { createdAt: 'asc' }],
-          select: {
-            id: true, title: true, artist: true, genre: true, releaseDate: true,
-            coverImage: true, fileUrl: true, trackNumber: true, discNumber: true
-          }
-        }
-      }
-    });
-    if (!album) return res.status(404).json({ message: 'Album not found' });
-    return res.json(album);
-  } catch (err) {
-    console.error('getAlbum error:', err);
     return next(err);
-  }
-};
-
-export const listAlbums = async (req, res, next) => {
-  try {
-    if (res.headersSent) return; // گارد احتیاطی
-
-    const page = Math.max(parseInt(req.query.page || '1', 10), 1);
-    const take = Math.min(Math.max(parseInt(req.query.pageSize || '12', 10), 1), 50);
-    const skip = (page - 1) * take;
-    const q = String(req.query.q || '').trim();
-
-    const where = q
-      ? {
-          OR: [
-            { title:  { contains: q, mode: 'insensitive' } },
-            { artist: { contains: q, mode: 'insensitive' } }
-          ]
-        }
-      : {};
-
-    const [items, total] = await Promise.all([
-      prisma.album.findMany({
-        where, skip, take,
-        orderBy: { createdAt: 'desc' },
-        include: { _count: { select: { songs: true } } }
-      }),
-      prisma.album.count({ where })
-    ]);
-
-    return res.json({
-      items,
-      page,
-      pageSize: take,
-      total,
-      pages: Math.ceil(total / take)
-    });
-  } catch (err) {
-    return next(err); // فقط هندلر خطا پاسخ می‌دهد
   }
 };
