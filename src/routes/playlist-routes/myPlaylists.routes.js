@@ -1,23 +1,23 @@
-// src/routes/feedRoutes.js
 import express from 'express';
 import { protect } from '../../middleware/authMiddleware.js';
-import { getFeed } from '../../controllers/feed-controllers/index.js';
+import { getMyPlaylists } from '../../controllers/playlist-controllers/index.js';
 
 const router = express.Router();
 
 /**
  * @openapi
- * /api/feed:
+ * /api/playlists/me:
  *   get:
- *     summary: Feed of songs from users I follow
- *     tags: [Feed]
+ *     summary: List my playlists
+ *     tags: [Playlists]
  *     security: [ { bearerAuth: [] } ]
  *     parameters:
  *       - $ref: '#/components/parameters/Page'
  *       - $ref: '#/components/parameters/PageSize'
  *     responses:
  *       200: { description: OK }
+ *       401: { $ref: '#/components/responses/Unauthorized' }
  */
-router.get('/', protect, getFeed);
+router.get('/me', protect, getMyPlaylists);
 
 export default router;
