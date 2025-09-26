@@ -82,5 +82,9 @@ export const swaggerSpec = swaggerJsdoc({
     },
     security: [{ bearerAuth: [] }],
   },
-  apis: [path.join(__dirname, '../routes/*.js')],
+  apis: [
+  path.join(__dirname, '../routes/*.js'),
+  path.join(__dirname, '../routes/**/*.js'),   // ✅ اضافه کن
+  path.join(__dirname, '../controllers/**/*.js')
+],
 });
